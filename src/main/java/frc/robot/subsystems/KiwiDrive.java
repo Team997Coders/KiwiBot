@@ -8,10 +8,9 @@ import frc.robot.RobotMap;
 
 public class KiwiDrive {
 
-  private boolean isFieldOrientated = true;
+  //private boolean isFieldOrientated = true;
 
   private double initNav = 0;
-  private double modifier = 0.5;
   private double ramp = 1.0;
 
   private double prevForward = 0.0;
@@ -69,13 +68,24 @@ public class KiwiDrive {
     double angle = Math.atan2(strafe, forward);
     double magnitude = Math.sqrt((forward * forward) + (strafe * strafe));
 
-    double a = ((Math.sin(angle) * magnitude) + spin) * modifier;
-    double b = ((Math.sin(angle + 120) * magnitude) + spin) * modifier;
-    double c = ((Math.sin(angle - 120) * magnitude) + spin) * modifier;
+    double a = (Math.sin(angle) * magnitude) + spin;
+    double b = (Math.sin(angle + 120) * magnitude) + spin;
+    double c = (Math.sin(angle - 120) * magnitude) + spin;
 
-    motorA.set(a);
-    motorB.set(b);
-    motorC.set(c);
+    double h = a;
+
+    if (b > h) {
+      h = b;
+    }
+    if (c > h) {
+      h = c;
+    }
+
+    double factor = 1 / h;
+
+    motorA.set(a * factor);
+    motorB.set(b * factor);
+    motorC.set(c * factor);
   }
 
   public void tankMix(double left, double right) {
