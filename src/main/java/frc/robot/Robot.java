@@ -30,6 +30,7 @@ public class Robot extends TimedRobot {
 
   // Delta time in updates in seconds
   public static double deltaTime = 0;
+  public static boolean useRamp = true;
 
   public static KiwiDrive kiwiDrive;
   public static DriveMix driveMix;
@@ -82,17 +83,17 @@ public class Robot extends TimedRobot {
     switch (driveMix) {
       case Arcade:
         kiwiDrive.holonomicMix(-gamepad1.getRawAxis(RobotMap.Gamepads.leftY), 0,
-          gamepad1.getRawAxis(RobotMap.Gamepads.rightX));
+          gamepad1.getRawAxis(RobotMap.Gamepads.rightX), useRamp);
         break;
       case FieldRelativeHolonomic:
         kiwiDrive.fieldRelativeHolonomicMix(-gamepad1.getRawAxis(RobotMap.Gamepads.leftY),
           gamepad1.getRawAxis(RobotMap.Gamepads.leftX),
-          gamepad1.getRawAxis(RobotMap.Gamepads.rightX));
+          gamepad1.getRawAxis(RobotMap.Gamepads.rightX), useRamp);
         break;
       case Holonomic:
         kiwiDrive.holonomicMix(-gamepad1.getRawAxis(RobotMap.Gamepads.leftY),
           gamepad1.getRawAxis(RobotMap.Gamepads.leftX),
-          gamepad1.getRawAxis(RobotMap.Gamepads.rightX));
+          gamepad1.getRawAxis(RobotMap.Gamepads.rightX), useRamp);
         break;
       case Tank:
         kiwiDrive.tankMix(-gamepad1.getRawAxis(RobotMap.Gamepads.leftY),
