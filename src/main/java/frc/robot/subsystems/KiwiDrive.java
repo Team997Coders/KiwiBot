@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.Spark;
+import frc.robot.Robot;
 import frc.robot.RobotMap;
 
 public class KiwiDrive {
@@ -11,6 +12,10 @@ public class KiwiDrive {
 
   private double initNav = 0;
   private double modifier = 0.5;
+  private double ramp = 1.0;
+
+  private double prevForward = 0.0;
+  private double prevStrafe = 0.0;
 
   private Spark motorA, motorB, motorC;
 
@@ -35,14 +40,32 @@ public class KiwiDrive {
     }
   }
 
-  public void fieldRelativeHolonomicMix(double forward, double strafe, double spin) {
+  public void fieldRelativeHolonomicMix(double forward, double strafe, double spin, boolean useRamp) {
     forward = Math.cos(getNav()) * forward;
     strafe = -Math.sin(getNav()) * strafe;
 
-    holonomicMix(forward, strafe, spin);
+    holonomicMix(forward, strafe, spin, useRamp);
   }
 
-  public void holonomicMix(double forward, double strafe, double spin) {
+  public void holonomicMix(double forward, double strafe, double spin, boolean useRamp) {
+
+    if (useRamp) {
+      double maxIncrement = Robot.deltaTime * ramp;
+
+      if (Math.abs(forward - prevForward) > maxIncrement) {
+        double sign = (forward - prevForward) / Math.abs(forward - prevForward);
+        forward = (maxIncrement * sign) + prevForward;
+      }
+
+      if (Math.abs(strafe - prevStrafe) > maxIncrement) {
+        double sign = (strafe - prevStrafe) / Math.abs(strafe - prevStrafe);
+        strafe = (maxIncrement * sign) + prevStrafe;
+      }
+    }
+
+    prevForward = forward;
+    prevStrafe = strafe;
+
     double angle = Math.atan2(strafe, forward);
     double magnitude = Math.sqrt((forward * forward) + (strafe * strafe));
 

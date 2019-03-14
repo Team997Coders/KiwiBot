@@ -22,10 +22,14 @@ import frc.robot.subsystems.KiwiDrive;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private AutoMode autoSelected;
+  private final SendableChooser<AutoMode> m_chooser = new SendableChooser<>();
+
+  // Last loggeed timestamp in milliseconds
+  private double lastTime = 0;
+
+  // Delta time in updates in seconds
+  public static double deltaTime = 0;
 
   public static KiwiDrive kiwiDrive;
   public static DriveMix driveMix;
@@ -34,9 +38,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    m_chooser.setDefaultOption("Do Nothing", AutoMode.Nothing);
+    m_chooser.addOption("Driver Control", AutoMode.Teleop);
+    SmartDashboard.putData("SiCkO mOdE", m_chooser);
 
     driveMix = DriveMix.FieldRelativeHolonomic;
 
@@ -45,25 +49,27 @@ public class Robot extends TimedRobot {
   
   @Override
   public void robotPeriodic() {
+    deltaTime = (System.currentTimeMillis() - lastTime) * 1000;
+    lastTime = System.currentTimeMillis();
   }
   
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+    autoSelected = m_chooser.getSelected();
     // autoSelected = SmartDashboard.getString("Auto Selector",
     // defaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    //System.out.println("Auto selected: " + m_autoSelected);
   }
   
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
+    switch (autoSelected) {
+      case Nothing:
         // Put custom auto code here
         break;
-      case kDefaultAuto:
+      case Teleop:
       default:
-        // Put default auto code here
+        teleopPeriodic();
         break;
     }
   }
@@ -101,6 +107,10 @@ public class Robot extends TimedRobot {
 
   public enum DriveMix {
     Holonomic, FieldRelativeHolonomic,
-    Arcade, Tank;
+    Arcade, Tank
+  }
+
+  public enum AutoMode {
+    Teleop, Nothing
   }
 }
