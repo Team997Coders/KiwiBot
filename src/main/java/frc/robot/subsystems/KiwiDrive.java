@@ -41,8 +41,8 @@ public class KiwiDrive {
   }
 
   public void fieldRelativeHolonomicMix(double forward, double strafe, double spin, boolean useRamp) {
-    forward = Math.cos(getNav()) * forward;
-    strafe = -Math.sin(getNav()) * strafe;
+    forward = (Math.cos(getNav()) * forward) + (Math.sin(getNav()) * strafe);
+    strafe = (Math.sin(getNav()) * -forward) + (Math.cos(getNav()) * strafe);
 
     holonomicMix(forward, strafe, spin, useRamp);
   }
