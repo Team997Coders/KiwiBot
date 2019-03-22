@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.Spark;
+import frc.robot.RoboMisc;
 import frc.robot.Robot;
 import frc.robot.RobotMap;
 
@@ -86,6 +87,52 @@ public class KiwiDrive {
     motorA.set(a * factor);
     motorB.set(b * factor);
     motorC.set(c * factor);
+  }
+
+  public void holonomicMix2(double forw, double str, double rot) {
+    double[] angles = new double[] { 0, -120, 120 };
+    double yaw = RoboMisc.VectorToYaw(str, forw);
+
+    for (int i = 0; i < angles.length; i++) {
+      angles[i] -= yaw;
+    }
+
+    double small = 0;
+
+    for (int i = 0; i < angles.length; i++) {
+      double h = (angles[i] % 90) * (Math.abs(angles[i]) / angles[i]);
+      if (h > small) {
+        small = h;
+      }
+    }
+
+    small = (small / 180) * (Math.PI);
+
+    double mag = Math.sin(small) * RoboMisc.getMag(str, forw);
+
+    double[] speeds = new double[] {
+      (mag / Math.sin((angles[0] / 180) * Math.PI)) + rot,
+      (mag / Math.sin((angles[1] / 180) * Math.PI)) + rot,
+      (mag / Math.sin((angles[2] / 180) * Math.PI)) + rot
+    };
+
+    double larg = -1;
+
+    for (int i = 0; i < speeds.length; i++) {
+      if (speeds[i] > larg) {
+        larg = speeds[i];
+      }
+    }
+
+    double normalizeVal = 1 / larg;
+
+    for (int i = 0; i < speeds.length; i++) {
+      speeds[i] *= normalizeVal;
+    }
+
+    motorA.set(speeds[0]);
+    motorB.set(speeds[1]);
+    motorC.set(speeds[2]);
   }
 
   public void tankMix(double left, double right) {
